@@ -150,6 +150,22 @@ export const SyllabusDistributionViewer: React.FC = () => {
   const selectedSemester = selectedGradeId ? availableSemesters.find((s: { id: string; name: string }) => s.id === selectedSemesterId) : undefined;
 
   useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const searchParams = new URLSearchParams(window.location.search);
+      const urlGradeId = searchParams.get('gradeId');
+      const urlSemesterId = searchParams.get('semesterId');
+      const urlGradeSubjectId = searchParams.get('gradeSubjectId');
+      const urlStageId = searchParams.get('stageId');
+      const urlRegion = searchParams.get('region');
+      if (urlStageId) setSelectedStageId(urlStageId);
+      if (urlGradeId) setSelectedGradeId(urlGradeId);
+      if (urlSemesterId) setSelectedSemesterId(urlSemesterId);
+      if (urlGradeSubjectId) setSelectedSubjectId(urlGradeSubjectId);
+      if (urlRegion) setSelectedRegion(urlRegion);
+    }
+  }, []);
+
+  useEffect(() => {
     (async () => {
       if (!selectedGradeId || !selectedSemesterId) {
         setSubjects([]);

@@ -143,6 +143,20 @@ export const ServerActivitiesViewer: React.FC = () => {
   ];
 
   useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const searchParams = new URLSearchParams(window.location.search);
+      const urlGradeId = searchParams.get('gradeId');
+      const urlSemesterId = searchParams.get('semesterId');
+      const urlGradeSubjectId = searchParams.get('gradeSubjectId');
+      const urlStageId = searchParams.get('stageId');
+      if (urlStageId) setSelectedStageId(urlStageId);
+      if (urlGradeId) setSelectedGradeId(urlGradeId);
+      if (urlSemesterId) setSelectedSemesterId(urlSemesterId);
+      if (urlGradeSubjectId) setSelectedSubjectId(urlGradeSubjectId);
+    }
+  }, []);
+
+  useEffect(() => {
     const fetchStages = async () => {
       const data = await fetchFromDatabase('/stages');
       if (data && Array.isArray(data) && data.length > 0) {
