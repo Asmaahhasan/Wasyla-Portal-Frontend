@@ -129,13 +129,19 @@ export const SyllabusDistributionViewer: React.FC = () => {
     })();
   }, []);
 
+  const defaultSems = [
+    { id: 'sem-1', name: 'الفصل الأول' },
+    { id: 'sem-2', name: 'الفصل الثاني' },
+    { id: 'sem-3', name: 'الفصل الثالث' }
+  ];
+
   const selectedStage = stages.find(s => s.id === selectedStageId);
   const availableTracks = selectedStage?.tracks || [];
   const selectedTrack = availableTracks[0];
   const availableGrades = selectedTrack?.grades || [];
   const selectedGrade = selectedStageId ? availableGrades.find(g => g.id === selectedGradeId) : undefined;
   const availableSemesters = selectedGrade ? ((selectedGrade.semesters && selectedGrade.semesters.length > 0) ? selectedGrade.semesters : defaultSems) : [];
-  const selectedSemester = selectedGradeId ? availableSemesters.find(s => s.id === selectedSemesterId) : undefined;
+  const selectedSemester = selectedGradeId ? availableSemesters.find((s: { id: string; name: string }) => s.id === selectedSemesterId) : undefined;
 
   useEffect(() => {
     (async () => {
@@ -352,7 +358,7 @@ export const SyllabusDistributionViewer: React.FC = () => {
                   <span style={{ color: '#3b82f6', fontWeight: 900, marginLeft: '6px', fontSize: '15px' }}>3</span> اختر الفصل الدراسي
                 </div>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', justifyContent: 'center', width: '100%' }}>
-                  {availableSemesters.map(s => {
+                  {availableSemesters.map((s: { id: string; name: string }) => {
                     const active = s.id === selectedSemesterId;
                     return (
                       <button
@@ -558,10 +564,10 @@ export const SyllabusDistributionViewer: React.FC = () => {
 
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
               <img
-                src="https://api.wsyelhi.com/wsylh-logo-full.png"
+                src="/logo.png"
                 alt="وسيلة"
-                style={{ height: 42, width: 'auto', objectFit: 'contain' }}
-                onError={e => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
+                style={{ height: 44, width: 'auto', objectFit: 'contain' }}
+                onError={e => { (e.currentTarget as HTMLImageElement).src = 'https://api.wsyelhi.com/wsylh-logo-full.png'; }}
               />
             </div>
           </div>
@@ -650,11 +656,11 @@ export const SyllabusDistributionViewer: React.FC = () => {
                       </div>
                     )}
                     {((): React.ReactNode[] => {
-                      const isWeek5NationalDay = (w.weekNumber ?? idx + 1) === 5 && !parts.some(p => p.includes('اليوم الوطني') || p.includes('إجازة'));
+                      const isWeek5NationalDay = (w.weekNumber ?? idx + 1) === 5 && !parts.some((p: string) => p.includes('اليوم الوطني') || p.includes('إجازة'));
                       const effectiveParts = isWeek5NationalDay
                         ? [parts[0] || '', 'إجازة اليوم الوطني السعودي', ...parts.slice(1)].filter(Boolean)
                         : parts;
-                      return effectiveParts.map((p, pIdx) => {
+                      return effectiveParts.map((p: string, pIdx: number) => {
                         const isSpecialHoliday = p.includes('إجازة') || p.includes('عطلة') || p.includes('اليوم الوطني');
                         const isSpecialExam = p.includes('اختبار') || p.includes('تقويم') || p.includes('امتحان');
                         if (isSpecialHoliday) return (

@@ -5,37 +5,53 @@ import { SyllabusPage } from './pages/Syllabus';
 import { AttendancePage } from './pages/Attendance';
 
 const PAGE_TITLES: Record<string, string> = {
-  '/activities': 'الأنشطة والموارد',
-  '/syllabus': 'توزيع المنهج',
-  '/attendance': 'الحضور والغياب',
-  '/': 'الأنشطة والموارد',
+  '/activities': 'الأنشطة والموارد التعليمية',
+  '/syllabus': 'توزيع المنهج الدراسي',
+  '/attendance': 'سجل الحضور والغياب',
+  '/': 'الأنشطة والموارد التعليمية',
+};
+
+const PAGE_ICONS: Record<string, string> = {
+  '/activities': '📚',
+  '/syllabus': '📅',
+  '/attendance': '📋',
+  '/': '📚',
 };
 
 export const App: React.FC = () => {
   const location = useLocation();
-  const pageTitle = PAGE_TITLES[location.pathname] ?? 'بوابة وسيلة';
+  const pageTitle = PAGE_TITLES[location.pathname] ?? 'بوابة وسيلة التعليمية';
+  const pageIcon = PAGE_ICONS[location.pathname] ?? '✨';
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 font-['Cairo',sans-serif]">
 
-      {/* Simple Header - Logo + Page Title only */}
-      <header className="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm no-print">
-        <div className="max-w-7xl mx-auto px-4 md:px-8 h-16 flex items-center gap-4">
+      {/* Ultra-Clean Pristine White Header */}
+      <header className="bg-white/95 backdrop-blur-md border-b border-slate-200 sticky top-0 z-40 shadow-sm no-print">
+        <div className="max-w-7xl mx-auto px-4 md:px-8 h-14 flex items-center justify-between">
 
-          {/* Wasyla Logo */}
-          <div className="flex items-center gap-3 shrink-0">
-            <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white font-extrabold text-sm shadow-md">
-              وسيلة
+          {/* Right Side (RTL Start): Page Title & Icon Pill */}
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-xl bg-teal-50 text-teal-700 border border-teal-200/70 flex items-center justify-center text-sm shadow-xs font-bold">
+              {pageIcon}
             </div>
+            <h1 className="text-slate-800 font-extrabold text-base md:text-lg tracking-tight">
+              {pageTitle}
+            </h1>
           </div>
 
-          {/* Divider */}
-          <div className="h-6 w-px bg-slate-200" />
-
-          {/* Current Page Title */}
-          <h1 className="text-slate-800 font-bold text-lg">
-            {pageTitle}
-          </h1>
+          {/* Left Side (RTL End): Clean Seamless Logo (No Box Wrapper) */}
+          <div className="flex items-center">
+            <img
+              src="/logo.png"
+              alt="وسيلة | WSYLH"
+              className="h-8 md:h-9 w-auto object-contain transition-transform hover:scale-105"
+              onError={(e) => {
+                const target = e.currentTarget;
+                target.src = 'https://api.wsyelhi.com/wsylh-logo-full.png';
+              }}
+            />
+          </div>
 
         </div>
       </header>

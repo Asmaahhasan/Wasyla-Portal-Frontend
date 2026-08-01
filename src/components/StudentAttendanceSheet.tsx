@@ -754,7 +754,7 @@ export const StudentAttendanceSheet: React.FC = () => {
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '14px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px', background: '#ffffff', padding: '6px 14px', borderRadius: '12px', border: '1.5px solid #a7f3d0', boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}>
               <img
-                src="/icon.png"
+                src="/logo.png"
                 alt="وسيلة"
                 onError={(e) => {
                   const target = e.currentTarget;
