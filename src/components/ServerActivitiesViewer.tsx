@@ -37,10 +37,10 @@ interface LessonItem {
 }
 type LessonActivityItem = LessonItem;
 
-const PORTAL_API = import.meta.env.VITE_API_URL || 'https://api.wsyelhi.com/api';
+const PORTAL_API = import.meta.env.VITE_API_URL || 'https://api.wsyelhi.com/portal-api';
 const RAW_API_URLS = [
   PORTAL_API,
-  'https://api.wsyelhi.com/api',
+  'https://api.wsyelhi.com/portal-api',
 ];
 const API_URLS = (typeof window !== 'undefined' && window.location.protocol === 'https:')
   ? RAW_API_URLS.map(url => url.replace(/^http:\/\//i, 'https://'))
