@@ -9,12 +9,14 @@ interface StudentItem {
   name: string;
 }
 
-const PORTAL_API = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
-const API_URLS = [
+const PORTAL_API = import.meta.env.VITE_API_URL || 'https://api.wsyelhi.com/api';
+const RAW_API_URLS = [
   PORTAL_API,
   'https://api.wsyelhi.com/api',
-  'http://localhost:4001/api',
 ];
+const API_URLS = (typeof window !== 'undefined' && window.location.protocol === 'https:')
+  ? RAW_API_URLS.map(url => url.replace(/^http:\/\//i, 'https://'))
+  : [...RAW_API_URLS, 'http://localhost:5000/api'];
 
 export const StudentAttendanceSheet: React.FC = () => {
   const [reportTitle, setReportTitle] = useState('سجل الحضور والغياب اليومي للطلاب');

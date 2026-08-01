@@ -37,21 +37,26 @@ interface LessonItem {
 }
 type LessonActivityItem = LessonItem;
 
-const PORTAL_API = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
-const API_URLS = [
+const PORTAL_API = import.meta.env.VITE_API_URL || 'https://api.wsyelhi.com/api';
+const RAW_API_URLS = [
   PORTAL_API,
   'https://api.wsyelhi.com/api',
-  'http://localhost:4001/api',
 ];
+const API_URLS = (typeof window !== 'undefined' && window.location.protocol === 'https:')
+  ? RAW_API_URLS.map(url => url.replace(/^http:\/\//i, 'https://'))
+  : [...RAW_API_URLS, 'http://localhost:5000/api'];
 
 const fetchFromDatabase = async (endpoint: string): Promise<any | null> => {
   for (const baseUrl of API_URLS) {
     try {
       const res = await fetch(`${baseUrl}${endpoint}`);
       if (res.ok) {
-        const data = await res.json();
-        if (Array.isArray(data) && data.length > 0) return data;
-        if (data && !Array.isArray(data)) return data;
+        const json = await res.json();
+        if (json && typeof json === 'object' && 'data' in json && json.data !== undefined) {
+          return json.data;
+        }
+        if (Array.isArray(json)) return json;
+        if (json && typeof json === 'object') return json;
       }
     } catch {
       // try next url
@@ -145,9 +150,8 @@ export const ServerActivitiesViewer: React.FC = () => {
         setIsServerConnected(true);
         return;
       }
-      setStages([]);
+      setStages(getFallbackStages());
       setIsServerConnected(false);
-      showStatus('🔴 تعذر الاتصال بقاعدة البيانات لجلب المراحل الدراسية. يرجى التأكد من تشغيل السيرفر https://api.wsyelhi.com');
     };
     fetchStages();
   }, []);

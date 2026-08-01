@@ -38,20 +38,26 @@ const REGION_OPTIONS = [
   { id: 'MAKKAH', name: '2. مكة المكرمة والرياض وجدة' }
 ];
 
-const PORTAL_API = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
-const API_URLS = [
+const PORTAL_API = import.meta.env.VITE_API_URL || 'https://api.wsyelhi.com/api';
+const RAW_API_URLS = [
   PORTAL_API,
   'https://api.wsyelhi.com/api',
-  'http://localhost:4001/api',
 ];
+const API_URLS = (typeof window !== 'undefined' && window.location.protocol === 'https:')
+  ? RAW_API_URLS.map(url => url.replace(/^http:\/\//i, 'https://'))
+  : [...RAW_API_URLS, 'http://localhost:5000/api'];
 
 const fetchFromDatabase = async (endpoint: string): Promise<{ ok: boolean; data: any }> => {
   for (const baseUrl of API_URLS) {
     try {
       const res = await fetch(`${baseUrl}${endpoint}`);
       if (res.ok) {
-        const data = await res.json();
-        return { ok: true, data };
+        const json = await res.json();
+        let payload = json;
+        if (json && typeof json === 'object' && 'data' in json && json.data !== undefined) {
+          payload = json.data;
+        }
+        return { ok: true, data: payload };
       }
     } catch { /* try next url */ }
   }
@@ -125,7 +131,7 @@ export const SyllabusDistributionViewer: React.FC = () => {
     (async () => {
       const { ok, data } = await fetchFromDatabase('/stages');
       if (ok && Array.isArray(data) && data.length > 0) { setStages(data); setIsServerConnected(true); return; }
-      setStages([]); setIsServerConnected(false); showStatus('🔴 تعذر الاتصال بقاعدة البيانات لجلب المراحل الدراسية. يرجى التأكد من تشغيل السيرفر https://api.wsyelhi.com');
+      setStages(getFallbackStages()); setIsServerConnected(false);
     })();
   }, []);
 
