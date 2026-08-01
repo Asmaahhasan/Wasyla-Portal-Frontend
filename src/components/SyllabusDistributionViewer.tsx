@@ -627,8 +627,8 @@ export const SyllabusDistributionViewer: React.FC = () => {
             </div>
           </div>
 
-          {/* Executive Matrix Weeks Grid - 6 columns stretch - EXACT admin design */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gridAutoRows: '1fr', gap: 6, marginBottom: 10, width: '100%', flex: 1, alignItems: 'stretch' }}>
+          {/* Executive Matrix Weeks Grid - 6 columns - Compact width & elegant height */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 10, marginBottom: 12, width: '100%', flex: 1 }}>
             {weeks.map((w, idx) => {
               const topic = (w as any).title || w.lessonTitle || w.unitTitle || '';
               const isHoliday = w.isHoliday || (w as any).weekType === 'HOLIDAY' || (topic.includes('إجازة') && !topic.includes('اليوم الوطني'));
@@ -641,15 +641,16 @@ export const SyllabusDistributionViewer: React.FC = () => {
                 <div
                   key={w.id || idx}
                   style={{
-                    border: isHoliday ? '1.5px solid #fed7aa' : isExam ? '1.5px solid #a7f3d0' : '1.5px solid #bfdbfe',
-                    borderRadius: 8,
+                    border: isHoliday ? '1.5px solid #fdba74' : isExam ? '1.5px solid #6ee7b7' : '1.5px solid #c7d2fe',
+                    borderRadius: 12,
                     overflow: 'hidden',
-                    background: isHoliday ? '#fff7ed' : isExam ? '#f0fdf4' : '#ffffff',
+                    background: isHoliday ? '#fff7ed' : isExam ? '#ecfdf5' : '#ffffff',
                     display: 'flex',
                     flexDirection: 'column',
                     justifyContent: 'space-between',
-                    height: '100%',
-                    boxShadow: '0 1px 3px rgba(0,0,0,0.02)'
+                    minHeight: '145px',
+                    boxShadow: '0 2px 6px rgba(99, 102, 241, 0.04)',
+                    transition: 'all 0.15s ease'
                   }}
                 >
                   <div
@@ -658,23 +659,22 @@ export const SyllabusDistributionViewer: React.FC = () => {
                         ? 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)'
                         : isExam
                           ? 'linear-gradient(135deg, #10b981 0%, #059669 100%)'
-                          : 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
+                          : 'linear-gradient(135deg, #4f46e5 0%, #4338ca 100%)',
                       color: '#ffffff',
-                      padding: '4px 6px',
+                      padding: '6px 8px',
                       fontWeight: 900,
-                      fontSize: 10.5,
+                      fontSize: 11,
                       textAlign: 'center',
-                      borderBottom: isHoliday ? '1.5px solid #fed7aa' : isExam ? '1.5px solid #a7f3d0' : '1.5px solid #93c5fd'
+                      borderBottom: isHoliday ? '1px solid #fed7aa' : isExam ? '1px solid #a7f3d0' : '1px solid #818cf8'
                     }}
                   >
                     <span>{displayHeader}</span>
                   </div>
-                  <div style={{ padding: '5px 6px', fontSize: 9.5, flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', gap: 4 }}>
+                  <div style={{ padding: '8px 8px', fontSize: 9.5, flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', gap: 5 }}>
                     {(startDate || endDate) && (
-                      <div style={{ background: '#f0f9ff', border: '1px solid #7dd3fc', borderRadius: 5, padding: '2px 4px', fontSize: 8.5, color: '#0369a1', textAlign: 'center', fontWeight: 800, marginBottom: 2, lineHeight: 1.3 }}>
-                        <span>📅 </span>
-                        {startDate && <div style={{ display: 'inline' }}>{startDate} </div>}
-                        {endDate && <div style={{ display: 'inline' }}>{endDate}</div>}
+                      <div style={{ background: '#f0f9ff', border: '1px dashed #818cf8', borderRadius: 7, padding: '3px 5px', fontSize: 8.5, color: '#1e1b4b', textAlign: 'center', fontWeight: 800, marginBottom: 3, lineHeight: 1.35 }}>
+                        {startDate && <span>من {startDate} </span>}
+                        {endDate && <span>إلى {endDate}</span>}
                       </div>
                     )}
                     {((): React.ReactNode[] => {
@@ -686,18 +686,18 @@ export const SyllabusDistributionViewer: React.FC = () => {
                         const isSpecialHoliday = p.includes('إجازة') || p.includes('عطلة') || p.includes('اليوم الوطني');
                         const isSpecialExam = p.includes('اختبار') || p.includes('تقويم') || p.includes('امتحان');
                         if (isSpecialHoliday) return (
-                          <div key={pIdx} style={{ background: '#ffedd5', color: '#9a3412', padding: '5px 6px', borderRadius: 8, border: '1.5px solid #fdba74', fontSize: 9.5, fontWeight: 800, textAlign: 'center', margin: '2px 0', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4, lineHeight: 1.3 }}>
+                          <div key={pIdx} style={{ background: '#ffedd5', color: '#9a3412', padding: '5px 6px', borderRadius: 7, border: '1px solid #fdba74', fontSize: 9, fontWeight: 800, textAlign: 'center', margin: '2px 0', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 3, lineHeight: 1.3 }}>
                             <span>📍</span><span>🌴</span><span>{p}</span>
                           </div>
                         );
                         if (isSpecialExam && !isExam) return (
-                          <div key={pIdx} style={{ background: '#dcfce7', color: '#166534', padding: '4px 6px', borderRadius: 6, border: '1.5px solid #86efac', fontSize: 9, fontWeight: 800, textAlign: 'center', margin: '2px 0' }}>
+                          <div key={pIdx} style={{ background: '#dcfce7', color: '#166534', padding: '5px 6px', borderRadius: 7, border: '1px solid #86efac', fontSize: 9, fontWeight: 800, textAlign: 'center', margin: '2px 0' }}>
                             <span>📝 {p}</span>
                           </div>
                         );
                         return (
-                          <div key={pIdx} style={{ display: 'flex', gap: 4, fontSize: 9, fontWeight: 700, color: '#1e293b', lineHeight: 1.3, alignItems: 'baseline' }}>
-                            <span style={{ color: '#d97706', fontWeight: 900, fontSize: 8 }}>❖</span>
+                          <div key={pIdx} style={{ display: 'flex', gap: 5, fontSize: 9.5, fontWeight: 700, color: '#1e293b', lineHeight: 1.35, alignItems: 'baseline' }}>
+                            <span style={{ color: '#4f46e5', fontWeight: 900, fontSize: 8 }}>❖</span>
                             <span>{p}</span>
                           </div>
                         );
