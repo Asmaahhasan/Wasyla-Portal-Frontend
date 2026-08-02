@@ -37,14 +37,13 @@ interface LessonItem {
 }
 type LessonActivityItem = LessonItem;
 
-const PORTAL_API = import.meta.env.VITE_API_URL || 'https://api.wsyelhi.com/portal-api';
 const RAW_API_URLS = [
-  PORTAL_API,
   'https://api.wsyelhi.com/portal-api',
+  'https://api.wsyelhi.com/api',
+  import.meta.env.VITE_API_URL || 'https://api.wsyelhi.com/portal-api',
+  'http://localhost:5000/api'
 ];
-const API_URLS = (typeof window !== 'undefined' && window.location.protocol === 'https:')
-  ? RAW_API_URLS.map(url => url.replace(/^http:\/\//i, 'https://'))
-  : [...RAW_API_URLS, 'http://localhost:5000/api'];
+const API_URLS = Array.from(new Set(RAW_API_URLS));
 
 const fetchFromDatabase = async (endpoint: string): Promise<any | null> => {
   for (const baseUrl of API_URLS) {

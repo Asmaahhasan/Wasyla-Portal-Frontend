@@ -9,14 +9,13 @@ interface StudentItem {
   name: string;
 }
 
-const PORTAL_API = import.meta.env.VITE_API_URL || 'https://api.wsyelhi.com/portal-api';
 const RAW_API_URLS = [
-  PORTAL_API,
   'https://api.wsyelhi.com/portal-api',
+  'https://api.wsyelhi.com/api',
+  import.meta.env.VITE_API_URL || 'https://api.wsyelhi.com/portal-api',
+  'http://localhost:5000/api'
 ];
-const API_URLS = (typeof window !== 'undefined' && window.location.protocol === 'https:')
-  ? RAW_API_URLS.map(url => url.replace(/^http:\/\//i, 'https://'))
-  : [...RAW_API_URLS, 'http://localhost:5000/api'];
+const API_URLS = Array.from(new Set(RAW_API_URLS));
 
 export const StudentAttendanceSheet: React.FC = () => {
   const [reportTitle, setReportTitle] = useState('سجل الحضور والغياب اليومي للطلاب');
@@ -802,15 +801,16 @@ export const StudentAttendanceSheet: React.FC = () => {
             borderCollapse: 'collapse',
             fontSize: '11px',
             textAlign: 'center',
-            border: '1.5px solid #0f766e'
+            border: '1.5px solid #0f766e',
+            tableLayout: 'fixed'
           }}
         >
           <thead>
             <tr>
-              <th style={{ background: 'linear-gradient(135deg, rgb(15, 118, 110), rgb(13, 148, 136))', color: '#fff', border: '1px solid #0d9488', padding: '8px 4px', width: '35px' }}>
+              <th style={{ background: 'linear-gradient(135deg, rgb(15, 118, 110), rgb(13, 148, 136))', color: '#fff', border: '1px solid #0d9488', padding: '6px 4px', width: '32px', verticalAlign: 'middle' }}>
                 م
               </th>
-              <th style={{ background: 'linear-gradient(135deg, rgb(15, 118, 110), rgb(13, 148, 136))', color: '#fff', border: '1px solid #0d9488', padding: '8px 10px', minWidth: '170px' }}>
+              <th style={{ background: 'linear-gradient(135deg, rgb(15, 118, 110), rgb(13, 148, 136))', color: '#fff', border: '1px solid #0d9488', padding: '6px 10px', width: '190px', textAlign: 'right', verticalAlign: 'middle' }}>
                 اسم الطالب / الطالبة
               </th>
               {weeksNumbers.map(num => (
@@ -821,25 +821,29 @@ export const StudentAttendanceSheet: React.FC = () => {
                     color: '#fff',
                     border: '1px solid #0d9488',
                     padding: '4px 2px',
-                    fontSize: '10px',
-                    minWidth: '40px'
+                    fontSize: '9.5px',
+                    verticalAlign: 'middle'
                   }}
                 >
-                  <div style={{ marginBottom: '2px' }}>الأسبوع</div>
-                  <div
-                    style={{
-                      display: 'inline-block',
-                      width: '18px',
-                      height: '18px',
-                      lineHeight: '16px',
-                      borderRadius: '50%',
-                      background: '#fff',
-                      color: '#0f766e',
-                      fontWeight: 900,
-                      fontSize: '10px'
-                    }}
-                  >
-                    {num}
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '2px' }}>
+                    <span>الأسبوع</span>
+                    <span
+                      style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        width: '18px',
+                        height: '18px',
+                        borderRadius: '50%',
+                        background: '#fff',
+                        color: '#0f766e',
+                        fontWeight: 900,
+                        fontSize: '9.5px',
+                        lineHeight: 1
+                      }}
+                    >
+                      {num}
+                    </span>
                   </div>
                 </th>
               ))}
@@ -848,7 +852,7 @@ export const StudentAttendanceSheet: React.FC = () => {
           <tbody>
             {students.length === 0 ? (
               <tr className="empty-state-row no-print">
-                <td colSpan={22} style={{ padding: '40px 16px', textAlign: 'center', background: '#f0fdf4', color: '#64748b' }}>
+                <td colSpan={20} style={{ padding: '36px 16px', textAlign: 'center', background: '#f0fdf4', color: '#64748b' }}>
                   <div style={{ fontSize: '32px', marginBottom: '8px' }}>📋</div>
                   <div style={{ fontWeight: 'bold', fontSize: '15px', color: '#0f766e', marginBottom: '6px' }}>
                     قائمة الطلاب فارغة حالياً
@@ -860,11 +864,11 @@ export const StudentAttendanceSheet: React.FC = () => {
               </tr>
             ) : (
               students.map(s => (
-                <tr key={s.id} style={{ background: s.number % 2 === 0 ? '#ecfdf5' : '#ffffff' }}>
-                  <td style={{ border: '1px solid #6ee7b7', padding: '4px', fontWeight: 800, color: '#065f46', background: s.number % 2 === 0 ? '#d1fae5' : '#f0fdf4', textAlign: 'center' }}>
+                <tr key={s.id} style={{ background: s.number % 2 === 0 ? '#ecfdf5' : '#ffffff', height: '28px' }}>
+                  <td style={{ border: '1px solid #6ee7b7', padding: '2px 4px', fontWeight: 800, color: '#065f46', background: s.number % 2 === 0 ? '#d1fae5' : '#f0fdf4', textAlign: 'center', verticalAlign: 'middle' }}>
                     {s.number}
                   </td>
-                  <td style={{ border: '1px solid #6ee7b7', padding: '4px 8px', textAlign: 'right', fontWeight: 700, color: '#1f2937' }}>
+                  <td style={{ border: '1px solid #6ee7b7', padding: '2px 8px', textAlign: 'right', fontWeight: 700, color: '#1f2937', verticalAlign: 'middle', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                     {editingId === s.id ? (
                       <div className="no-print" style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
                         <input
@@ -877,7 +881,7 @@ export const StudentAttendanceSheet: React.FC = () => {
                         <button onClick={() => setEditingId(null)} style={{ color: '#dc2626', background: 'none', border: 'none', cursor: 'pointer' }}>✕</button>
                       </div>
                     ) : (
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', height: '100%' }}>
                         <span>{s.name}</span>
                         <div className="no-print" style={{ display: 'flex', gap: '4px' }}>
                           <button onClick={() => startEdit(s)} style={{ background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', padding: '2px' }}>✎</button>
@@ -887,14 +891,14 @@ export const StudentAttendanceSheet: React.FC = () => {
                     )}
                   </td>
                   {weeksNumbers.map(num => (
-                    <td key={num} style={{ border: '1px solid #6ee7b7', padding: '4px 2px', textAlign: 'center', background: s.number % 2 === 0 ? '#f0fdf4' : '#ffffff' }}>
-                      <div style={{ display: 'flex', justifyContent: 'center', gap: '2px' }}>
+                    <td key={num} style={{ border: '1px solid #6ee7b7', padding: '2px 1px', textAlign: 'center', verticalAlign: 'middle', background: s.number % 2 === 0 ? '#f0fdf4' : '#ffffff' }}>
+                      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '2px', height: '100%', minHeight: '20px' }}>
                         {Array.from({ length: 5 }).map((_, i) => (
                           <span
                             key={i}
                             style={{
-                              width: '8px',
-                              height: '8px',
+                              width: '7.5px',
+                              height: '7.5px',
                               borderRadius: '50%',
                               border: '1.5px solid #10b981',
                               display: 'inline-block',
