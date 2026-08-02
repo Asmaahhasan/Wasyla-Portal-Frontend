@@ -630,20 +630,21 @@ export const SyllabusDistributionViewer: React.FC = () => {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 10, marginBottom: 12, width: '100%', flex: 1 }}>
             {weeks.map((w, idx) => {
               const topic = (w as any).title || w.lessonTitle || w.unitTitle || '';
-              const isHoliday = w.isHoliday || (w as any).weekType === 'HOLIDAY' || (topic.includes('إجازة') && !topic.includes('اليوم الوطني'));
-              const isExam = !isHoliday && ((w as any).weekType === 'EXAM' || topic.includes('اختبار'));
+              // Full week holiday is ONLY if entire week is HOLIDAY (not single day holiday like National Day)
+              const isFullWeekHoliday = Boolean(w.isHoliday) || (w as any).weekType === 'HOLIDAY';
+              const isExam = !isFullWeekHoliday && ((w as any).weekType === 'EXAM' || (topic.includes('اختبار') && !topic.includes('درس')));
               const parts = topic.split('|').map((p: string) => p.trim());
-              const displayHeader = isHoliday ? 'إجازة رسمية' : isExam ? 'أسبوع الاختبارات' : getArabicOrdinalWeek(w.weekNumber ?? idx + 1);
+              const displayHeader = isFullWeekHoliday ? 'إجازة رسمية' : isExam ? 'أسبوع الاختبارات' : getArabicOrdinalWeek(w.weekNumber ?? idx + 1);
               const startDate = (w as any).startDateHijri || w.startDate || '';
               const endDate = (w as any).endDateHijri || w.endDate || '';
               return (
                 <div
                   key={w.id || idx}
                   style={{
-                    border: isHoliday ? '1.5px solid #fdba74' : isExam ? '1.5px solid #6ee7b7' : '1.5px solid #c7d2fe',
+                    border: isFullWeekHoliday ? '1.5px solid #fdba74' : isExam ? '1.5px solid #6ee7b7' : '1.5px solid #c7d2fe',
                     borderRadius: 12,
                     overflow: 'hidden',
-                    background: isHoliday ? '#fff7ed' : isExam ? '#ecfdf5' : '#ffffff',
+                    background: isFullWeekHoliday ? '#fff7ed' : isExam ? '#ecfdf5' : '#ffffff',
                     display: 'flex',
                     flexDirection: 'column',
                     justifyContent: 'space-between',
@@ -654,7 +655,7 @@ export const SyllabusDistributionViewer: React.FC = () => {
                 >
                   <div
                     style={{
-                      background: isHoliday
+                      background: isFullWeekHoliday
                         ? 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)'
                         : isExam
                           ? 'linear-gradient(135deg, #10b981 0%, #059669 100%)'
@@ -664,7 +665,7 @@ export const SyllabusDistributionViewer: React.FC = () => {
                       fontWeight: 900,
                       fontSize: 11,
                       textAlign: 'center',
-                      borderBottom: isHoliday ? '1px solid #fed7aa' : isExam ? '1px solid #a7f3d0' : '1px solid #818cf8'
+                      borderBottom: isFullWeekHoliday ? '1px solid #fed7aa' : isExam ? '1px solid #a7f3d0' : '1px solid #818cf8'
                     }}
                   >
                     <span>{displayHeader}</span>
@@ -679,16 +680,21 @@ export const SyllabusDistributionViewer: React.FC = () => {
                     {((): React.ReactNode[] => {
                       const isWeek5NationalDay = (w.weekNumber ?? idx + 1) === 5 && !parts.some((p: string) => p.includes('اليوم الوطني') || p.includes('إجازة'));
                       const effectiveParts = isWeek5NationalDay
-                        ? [parts[0] || '', 'إجازة اليوم الوطني السعودي', ...parts.slice(1)].filter(Boolean)
+                        ? [parts[0] || '', 'إجازة اليوم الوطني السعودي (٢٣ سبتمبر)', ...parts.slice(1)].filter(Boolean)
                         : parts;
                       return effectiveParts.map((p: string, pIdx: number) => {
                         const isSpecialHoliday = p.includes('إجازة') || p.includes('عطلة') || p.includes('اليوم الوطني');
                         const isSpecialExam = p.includes('اختبار') || p.includes('تقويم') || p.includes('امتحان');
-                        if (isSpecialHoliday) return (
-                          <div key={pIdx} style={{ background: '#ffedd5', color: '#9a3412', padding: '5px 6px', borderRadius: 7, border: '1px solid #fdba74', fontSize: 9, fontWeight: 800, textAlign: 'center', margin: '2px 0', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 3, lineHeight: 1.3 }}>
-                            <span>📍</span><span>🌴</span><span>{p}</span>
-                          </div>
-                        );
+                        if (isSpecialHoliday) {
+                          const holidayLabel = (p.includes('اليوم الوطني') && !p.includes('٢٣'))
+                            ? `${p} (٢٣ سبتمبر)`
+                            : p;
+                          return (
+                            <div key={pIdx} style={{ background: '#ffedd5', color: '#9a3412', padding: '5px 6px', borderRadius: 7, border: '1px solid #fdba74', fontSize: 9, fontWeight: 800, textAlign: 'center', margin: '2px 0', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 3, lineHeight: 1.3 }}>
+                              <span>📍</span><span>🌴</span><span>{holidayLabel}</span>
+                            </div>
+                          );
+                        }
                         if (isSpecialExam && !isExam) return (
                           <div key={pIdx} style={{ background: '#dcfce7', color: '#166534', padding: '5px 6px', borderRadius: 7, border: '1px solid #86efac', fontSize: 9, fontWeight: 800, textAlign: 'center', margin: '2px 0' }}>
                             <span>📝 {p}</span>
