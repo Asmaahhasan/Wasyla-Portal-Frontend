@@ -679,34 +679,62 @@ export const SyllabusDistributionViewer: React.FC = () => {
                     )}
                     {((): React.ReactNode[] => {
                       const isWeek5NationalDay = (w.weekNumber ?? idx + 1) === 5 && !parts.some((p: string) => p.includes('اليوم الوطني') || p.includes('إجازة'));
-                      const effectiveParts = isWeek5NationalDay
-                        ? [parts[0] || '', 'إجازة اليوم الوطني السعودي (٢٣ سبتمبر)', ...parts.slice(1)].filter(Boolean)
+                      const rawParts = isWeek5NationalDay
+                        ? [parts[0] || '', 'إجازة اليوم الوطني (٢٣ سبتمبر)', ...parts.slice(1)].filter(Boolean)
                         : parts;
-                      return effectiveParts.map((p: string, pIdx: number) => {
-                        const isSpecialHoliday = p.includes('إجازة') || p.includes('عطلة') || p.includes('اليوم الوطني');
-                        const isSpecialExam = p.includes('اختبار') || p.includes('تقويم') || p.includes('امتحان');
-                        if (isSpecialHoliday) {
-                          const holidayLabel = (p.includes('اليوم الوطني') && !p.includes('٢٣'))
-                            ? `${p} (٢٣ سبتمبر)`
-                            : p;
-                          return (
-                            <div key={pIdx} style={{ background: '#ffedd5', color: '#9a3412', padding: '5px 6px', borderRadius: 7, border: '1px solid #fdba74', fontSize: 9, fontWeight: 800, textAlign: 'center', margin: '2px 0', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 3, lineHeight: 1.3 }}>
-                              <span>📍</span><span>🌴</span><span>{holidayLabel}</span>
+
+                      const elements: React.ReactNode[] = [];
+
+                      rawParts.forEach((p: string, pIdx: number) => {
+                        const hasHoliday = p.includes('إجازة') || p.includes('عطلة') || p.includes('اليوم الوطني');
+                        const isSpecialExam = !hasHoliday && (p.includes('اختبار') || p.includes('تقويم') || p.includes('امتحان'));
+
+                        if (hasHoliday) {
+                          let holidayStr = '';
+                          let lessonStr = '';
+
+                          if (p.includes('اليوم الوطني')) {
+                            holidayStr = 'إجازة اليوم الوطني (٢٣ سبتمبر)';
+                            lessonStr = p.replace(/إجازة\s*اليوم\s*الوطني(?:\s*السعودي)?(?:\s*\([^\)]+\))?/gi, '').trim();
+                          } else {
+                            const match = p.match(/(إجازة\s+[^\s\->:<|]+(?:\s+[^\s\->:<|]+)?)/i);
+                            holidayStr = match ? match[0].trim() : p;
+                            lessonStr = match ? p.replace(match[0], '').trim() : '';
+                          }
+
+                          lessonStr = lessonStr.replace(/^[\s\->:<|]+|[\s\->:<|]+$/g, '').trim();
+
+                          elements.push(
+                            <div key={`hol-${pIdx}`} style={{ background: '#ffedd5', color: '#9a3412', padding: '5px 6px', borderRadius: 7, border: '1px solid #fdba74', fontSize: 9, fontWeight: 800, textAlign: 'center', margin: '2px 0', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 3, lineHeight: 1.3 }}>
+                              <span>📍</span><span>🌴</span><span>{holidayStr}</span>
+                            </div>
+                          );
+
+                          if (lessonStr) {
+                            elements.push(
+                              <div key={`les-${pIdx}`} style={{ display: 'flex', gap: 5, fontSize: 9.5, fontWeight: 700, color: '#1e293b', lineHeight: 1.35, alignItems: 'baseline' }}>
+                                <span style={{ color: '#4f46e5', fontWeight: 900, fontSize: 8 }}>❖</span>
+                                <span>{lessonStr}</span>
+                              </div>
+                            );
+                          }
+                        } else if (isSpecialExam && !isExam) {
+                          elements.push(
+                            <div key={`ex-${pIdx}`} style={{ background: '#dcfce7', color: '#166534', padding: '5px 6px', borderRadius: 7, border: '1px solid #86efac', fontSize: 9, fontWeight: 800, textAlign: 'center', margin: '2px 0' }}>
+                              <span>📝 {p}</span>
+                            </div>
+                          );
+                        } else {
+                          elements.push(
+                            <div key={`norm-${pIdx}`} style={{ display: 'flex', gap: 5, fontSize: 9.5, fontWeight: 700, color: '#1e293b', lineHeight: 1.35, alignItems: 'baseline' }}>
+                              <span style={{ color: '#4f46e5', fontWeight: 900, fontSize: 8 }}>❖</span>
+                              <span>{p}</span>
                             </div>
                           );
                         }
-                        if (isSpecialExam && !isExam) return (
-                          <div key={pIdx} style={{ background: '#dcfce7', color: '#166534', padding: '5px 6px', borderRadius: 7, border: '1px solid #86efac', fontSize: 9, fontWeight: 800, textAlign: 'center', margin: '2px 0' }}>
-                            <span>📝 {p}</span>
-                          </div>
-                        );
-                        return (
-                          <div key={pIdx} style={{ display: 'flex', gap: 5, fontSize: 9.5, fontWeight: 700, color: '#1e293b', lineHeight: 1.35, alignItems: 'baseline' }}>
-                            <span style={{ color: '#4f46e5', fontWeight: 900, fontSize: 8 }}>❖</span>
-                            <span>{p}</span>
-                          </div>
-                        );
                       });
+
+                      return elements;
                     })()}
                   </div>
                 </div>
