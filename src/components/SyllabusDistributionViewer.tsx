@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import * as XLSX from 'xlsx';
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
 import { WASILA_LOGO_BASE64 } from '../assets/logoBase64';
 
 interface EducationStage {
@@ -206,35 +208,32 @@ export const SyllabusDistributionViewer: React.FC = () => {
     const el = document.getElementById('printable-syllabus');
     if (!el) { showStatus('عنصر المعاينة غير موجود، أعد فتح النافذة'); return; }
     setPdfLoading(true);
+    showStatus('جاري تحضير وتوليد ملف PDF المعتمد عالي الجودة... ⚙️');
     try {
-      const htmlContent = el.outerHTML;
       const subjectName = selectedSubjectObj?.name || 'المادة';
       const gradeName = selectedGrade?.name || '';
       const stageName = selectedStage?.name || '';
       const pdfTitle = `توزيع ${subjectName} ${gradeName} ${stageName}`.replace(/\s+/g, ' ').trim();
-      const pdfExportUrl = 'https://api.wsyelhi.com/api/syllabus-weeks/export-pdf';
-      const response = await fetch(pdfExportUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ html: htmlContent, title: pdfTitle }),
+
+      const canvas = await html2canvas(el, {
+        scale: 2,
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: '#ffffff',
+        logging: false
       });
-      const contentType = response.headers.get('content-type') || '';
-      if (!response.ok || contentType.includes('application/json')) {
-        const err = await response.json().catch(() => ({}));
-        throw new Error(err.error || `فشل إنشاء PDF (${response.status})`);
-      }
-      const blobData = await response.blob();
-      const pdfBlob = new Blob([blobData], { type: 'application/pdf' });
-      const url = window.URL.createObjectURL(pdfBlob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `${pdfTitle}.pdf`;
-      document.body.appendChild(a);
-      a.click();
-      setTimeout(() => { window.URL.revokeObjectURL(url); if (a.parentNode) a.parentNode.removeChild(a); }, 1000);
-      showStatus('✅ تم توليد وتنزيل ملف الـ PDF بنجاح');
+
+      const imgData = canvas.toDataURL('image/png', 1.0);
+      const pdf = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = pdf.internal.pageSize.getHeight();
+
+      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+      pdf.save(`${pdfTitle}.pdf`);
+
+      showStatus('✅ تم إنشاء وتنزيل ملف الـ PDF بنجاح');
     } catch (err: any) {
-      showStatus('❌ فشل تنزيل PDF: ' + (err.message || 'تحقق من تشغيل السيرفر'));
+      showStatus('❌ حدث خطأ أثناء إنشاء ملف PDF: ' + (err.message || 'خطأ في التوليد'));
     } finally {
       setPdfLoading(false);
     }
