@@ -3,6 +3,7 @@ import { Routes, Route, useLocation } from 'react-router-dom';
 import { ActivitiesPage } from './pages/Activities';
 import { SyllabusPage } from './pages/Syllabus';
 import { AttendancePage } from './pages/Attendance';
+import { WASILA_LOGO_BASE64 } from './assets/logoBase64';
 
 const PAGE_TITLES: Record<string, string> = {
   '/activities': 'الأنشطة والموارد التعليمية',
@@ -43,13 +44,9 @@ export const App: React.FC = () => {
           {/* Left Side (RTL End): Clean Seamless Logo (No Box Wrapper) */}
           <div className="flex items-center">
             <img
-              src="/logo.png"
+              src={WASILA_LOGO_BASE64}
               alt="وسيلة | WSYLH"
               className="h-8 md:h-9 w-auto object-contain transition-transform hover:scale-105"
-              onError={(e) => {
-                const target = e.currentTarget;
-                target.src = 'https://api.wsyelhi.com/wsylh-logo-full.png';
-              }}
             />
           </div>
 

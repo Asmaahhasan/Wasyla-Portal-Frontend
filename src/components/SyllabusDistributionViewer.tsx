@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import * as XLSX from 'xlsx';
-import html2canvas from 'html2canvas';
-import jsPDF from 'jspdf';
+import { WASILA_LOGO_BASE64 } from '../assets/logoBase64';
 
 interface EducationStage {
   id: string;
@@ -207,32 +206,35 @@ export const SyllabusDistributionViewer: React.FC = () => {
     const el = document.getElementById('printable-syllabus');
     if (!el) { showStatus('عنصر المعاينة غير موجود، أعد فتح النافذة'); return; }
     setPdfLoading(true);
-    showStatus('جاري توليد ملف الـ PDF عالي الجودة بجميع الأيقونات والشعار... ⚙️');
     try {
+      const htmlContent = el.outerHTML;
       const subjectName = selectedSubjectObj?.name || 'المادة';
       const gradeName = selectedGrade?.name || '';
       const stageName = selectedStage?.name || '';
       const pdfTitle = `توزيع ${subjectName} ${gradeName} ${stageName}`.replace(/\s+/g, ' ').trim();
-
-      const canvas = await html2canvas(el, {
-        scale: 2.5,
-        useCORS: true,
-        allowTaint: true,
-        backgroundColor: '#ffffff',
-        logging: false,
+      const pdfExportUrl = 'https://api.wsyelhi.com/api/syllabus-weeks/export-pdf';
+      const response = await fetch(pdfExportUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ html: htmlContent, title: pdfTitle }),
       });
-
-      const imgData = canvas.toDataURL('image/png');
-      const pdf = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
-      const pdfW = pdf.internal.pageSize.getWidth();
-      const pdfH = pdf.internal.pageSize.getHeight();
-
-      pdf.addImage(imgData, 'PNG', 0, 0, pdfW, pdfH);
-      pdf.save(`${pdfTitle}.pdf`);
-      showStatus('✅ تم توليد وتنزيل ملف الـ PDF عالي الجودة بالأيقونات بنجاح 🎉');
+      const contentType = response.headers.get('content-type') || '';
+      if (!response.ok || contentType.includes('application/json')) {
+        const err = await response.json().catch(() => ({}));
+        throw new Error(err.error || `فشل إنشاء PDF (${response.status})`);
+      }
+      const blobData = await response.blob();
+      const pdfBlob = new Blob([blobData], { type: 'application/pdf' });
+      const url = window.URL.createObjectURL(pdfBlob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${pdfTitle}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(() => { window.URL.revokeObjectURL(url); if (a.parentNode) a.parentNode.removeChild(a); }, 1000);
+      showStatus('✅ تم توليد وتنزيل ملف الـ PDF بنجاح');
     } catch (err: any) {
-      console.error('PDF generation error:', err);
-      showStatus('❌ فشل تنزيل PDF: ' + (err.message || 'خطأ في المتصفح'));
+      showStatus('❌ فشل تنزيل PDF: ' + (err.message || 'تحقق من تشغيل السيرفر'));
     } finally {
       setPdfLoading(false);
     }
@@ -584,10 +586,9 @@ export const SyllabusDistributionViewer: React.FC = () => {
 
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
               <img
-                src="/logo.png"
+                src={WASILA_LOGO_BASE64}
                 alt="وسيلة"
-                style={{ height: 44, width: 'auto', objectFit: 'contain' }}
-                onError={e => { (e.currentTarget as HTMLImageElement).src = 'https://api.wsyelhi.com/wsylh-logo-full.png'; }}
+                style={{ height: 48, width: 'auto', objectFit: 'contain' }}
               />
             </div>
           </div>

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import * as XLSX from 'xlsx';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
+import { WASILA_LOGO_BASE64 } from '../assets/logoBase64';
 
 interface StudentItem {
   id: string;
@@ -755,12 +756,8 @@ export const StudentAttendanceSheet: React.FC = () => {
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '14px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px', background: '#ffffff', padding: '6px 14px', borderRadius: '12px', border: '1.5px solid #a7f3d0', boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}>
               <img
-                src="/logo.png"
+                src={WASILA_LOGO_BASE64}
                 alt="وسيلة"
-                onError={(e) => {
-                  const target = e.currentTarget;
-                  target.src = 'https://api.wsyelhi.com/wsylh-logo-full.png';
-                }}
                 style={{ height: '68px', width: 'auto', objectFit: 'contain' }}
               />
             </div>
