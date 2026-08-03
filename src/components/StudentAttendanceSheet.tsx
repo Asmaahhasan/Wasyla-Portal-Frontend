@@ -318,7 +318,7 @@ export const StudentAttendanceSheet: React.FC = () => {
       showStatus('لم يتم العثور على نموذج الطباعة');
       return;
     }
-    showStatus('جاري تحضير ملف PDF عالي الجودة كامل الصفحة... ⚙️');
+    showStatus('جاري تحضير ملف PDF... ⚙️');
     try {
       const canvas = await html2canvas(el, {
         scale: 3,
@@ -335,14 +335,14 @@ export const StudentAttendanceSheet: React.FC = () => {
       // Full A4 Landscape stretch (0mm margins) for full-page presentation
       pdf.addImage(imgData, 'PNG', 0, 0, pdfW, pdfH);
       pdf.save(`سجل-الحضور-${subjectName || 'المادة'}.pdf`);
-      showStatus('تم تحميل ملف PDF بنجاح 🎉');
+      showStatus('✅ تم تنزيل ملف PDF بنجاح');
     } catch (err: any) {
       console.error(err);
       showStatus('حدث خطأ أثناء إنشاء ملف PDF');
     }
   };
 
-  /* ─── Fast & Direct PDF Download via Puppeteer Backend Server ─── */
+  /* ─── Fast & Direct PDF Download ─── */
   const handleDownloadPDF = async () => {
     if (students.length === 0) {
       showStatus('يرجى إضافة أسماء الطلاب أولاً قبل التحميل');
@@ -351,7 +351,7 @@ export const StudentAttendanceSheet: React.FC = () => {
 
     const printableEl = document.getElementById('ext-printable-attendance');
     if (printableEl) {
-      showStatus('جاري تحضير وتوليد ملف PDF المعتمد عبر سيرفر Puppeteer... ⚙️');
+      showStatus('جاري تحضير ملف PDF... ⚙️');
       const htmlContent = `
         <!DOCTYPE html>
         <html dir="rtl" lang="ar">
@@ -385,7 +385,7 @@ export const StudentAttendanceSheet: React.FC = () => {
             a.download = `سجل-الحضور-${subjectName || 'المادة'}.pdf`;
             a.click();
             window.URL.revokeObjectURL(url);
-            showStatus('تم تحميل ملف PDF المعتمد من سيرفر Puppeteer بنجاح 🚀');
+            showStatus('✅ تم تنزيل ملف PDF بنجاح');
             return;
           }
         } catch { /* try next */ }
@@ -457,8 +457,31 @@ export const StudentAttendanceSheet: React.FC = () => {
 
 
       {statusMsg && (
-        <div className="no-print" style={{ background: '#ecfdf5', color: '#065f46', border: '1px solid #10b981', padding: '10px 16px', borderRadius: '8px', marginBottom: '16px', fontWeight: 'bold', textAlign: 'center' }}>
-          {statusMsg}
+        <div
+          className="no-print"
+          style={{
+            position: 'fixed',
+            bottom: '30px',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            zIndex: 99999,
+            background: 'linear-gradient(135deg, #059669 0%, #047857 100%)',
+            color: '#ffffff',
+            padding: '12px 28px',
+            borderRadius: '50px',
+            boxShadow: '0 10px 30px rgba(5, 150, 105, 0.4), 0 4px 12px rgba(0,0,0,0.1)',
+            fontWeight: 800,
+            fontSize: '13.5px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
+            direction: 'rtl',
+            border: '1.5px solid rgba(255, 255, 255, 0.35)',
+            pointerEvents: 'none'
+          }}
+        >
+          <span style={{ fontSize: '17px' }}>🔔</span>
+          <span>{statusMsg}</span>
         </div>
       )}
 

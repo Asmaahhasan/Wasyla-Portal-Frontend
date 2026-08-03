@@ -337,7 +337,34 @@ export const SyllabusDistributionViewer: React.FC = () => {
         }
       `}</style>
 
-      {statusMsg && <div className="no-print" style={{ background: '#ecfdf5', color: '#065f46', border: '1px solid #10b981', padding: '8px 16px', borderRadius: '8px', marginBottom: '14px', fontWeight: 'bold', textAlign: 'center', fontSize: '13px' }}>{statusMsg}</div>}
+      {statusMsg && (
+        <div
+          className="no-print"
+          style={{
+            position: 'fixed',
+            bottom: '30px',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            zIndex: 99999,
+            background: 'linear-gradient(135deg, #059669 0%, #047857 100%)',
+            color: '#ffffff',
+            padding: '12px 28px',
+            borderRadius: '50px',
+            boxShadow: '0 10px 30px rgba(5, 150, 105, 0.4), 0 4px 12px rgba(0,0,0,0.1)',
+            fontWeight: 800,
+            fontSize: '13.5px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
+            direction: 'rtl',
+            border: '1.5px solid rgba(255, 255, 255, 0.35)',
+            pointerEvents: 'none'
+          }}
+        >
+          <span style={{ fontSize: '17px' }}>🔔</span>
+          <span>{statusMsg}</span>
+        </div>
+      )}
 
       <div className="no-print" style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '24px', maxWidth: '1200px', margin: '0 auto 24px auto', width: '100%' }}>
         {/* ── Filter Card (User Screenshot Style - Wide & Spacious) ── */}

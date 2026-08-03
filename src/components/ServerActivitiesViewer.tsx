@@ -358,8 +358,30 @@ export const ServerActivitiesViewer: React.FC = () => {
     <div className="activities-viewer-container" style={{ direction: 'rtl', padding: '20px 24px', fontFamily: "'Cairo', sans-serif" }}>
 
       {statusMsg && (
-        <div style={{ background: 'linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%)', color: '#065f46', border: '1px solid #6ee7b7', padding: '10px 16px', borderRadius: '12px', marginBottom: '14px', fontWeight: 700, textAlign: 'center', fontSize: '12.5px', boxShadow: '0 2px 8px rgba(16,185,129,0.12)' }}>
-          {statusMsg}
+        <div
+          style={{
+            position: 'fixed',
+            bottom: '30px',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            zIndex: 99999,
+            background: 'linear-gradient(135deg, #059669 0%, #047857 100%)',
+            color: '#ffffff',
+            padding: '12px 28px',
+            borderRadius: '50px',
+            boxShadow: '0 10px 30px rgba(5, 150, 105, 0.4), 0 4px 12px rgba(0,0,0,0.1)',
+            fontWeight: 800,
+            fontSize: '13.5px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
+            direction: 'rtl',
+            border: '1.5px solid rgba(255, 255, 255, 0.35)',
+            pointerEvents: 'none'
+          }}
+        >
+          <span style={{ fontSize: '17px' }}>🔔</span>
+          <span>{statusMsg}</span>
         </div>
       )}
 
