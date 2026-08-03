@@ -211,7 +211,7 @@ export const SyllabusDistributionViewer: React.FC = () => {
     const el = document.getElementById('printable-syllabus');
     if (!el) { showStatus('عنصر المعاينة غير موجود، أعد فتح النافذة'); return; }
     setPdfLoading(true);
-    showStatus('جاري توليد ملف PDF بواسطة سيرفر Puppeteer... ⚙️');
+    showStatus('جاري تحضير ملف PDF... ⚙️');
 
     try {
       const htmlContent = el.outerHTML;
@@ -246,9 +246,9 @@ export const SyllabusDistributionViewer: React.FC = () => {
       document.body.appendChild(a);
       a.click();
       setTimeout(() => { window.URL.revokeObjectURL(url); if (a.parentNode) a.parentNode.removeChild(a); }, 1000);
-      showStatus('✅ تم إنشاء وتنزيل ملف PDF المعتمد بواسطة Puppeteer بنجاح');
+      showStatus('✅ تم إنشاء وتنزيل ملف الـ PDF بنجاح');
     } catch (err: any) {
-      showStatus('⚠️ جاري استعراض ملف PDF عالي الجودة للطباعة والتنزيل...');
+      showStatus('جاري فتح المعاينة والطباعة...');
       const subjectName = selectedSubjectObj?.name || 'المادة';
       const gradeName = selectedGrade?.name || '';
       const stageName = selectedStage?.name || '';
