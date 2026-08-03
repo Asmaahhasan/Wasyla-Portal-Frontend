@@ -856,8 +856,11 @@ export const ServerActivitiesViewer: React.FC = () => {
                   (e.currentTarget as HTMLElement).style.boxShadow = `0 4px 16px ${badge.border}55`;
                 }}
                 onClick={() => {
-                  if (item.url) window.open(item.url, '_blank');
-                  else setActivePreview({ lessonTitle: activity.lessonTitle, item });
+                  if (item.url) {
+                    window.open(`game.html?url=${encodeURIComponent(item.url)}`, '_blank');
+                  } else {
+                    window.open('game.html', '_blank');
+                  }
                 }}
               >
                 {/* Cover / Header */}
