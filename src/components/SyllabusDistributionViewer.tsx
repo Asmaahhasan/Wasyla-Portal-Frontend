@@ -211,56 +211,84 @@ export const SyllabusDistributionViewer: React.FC = () => {
     const el = document.getElementById('printable-syllabus');
     if (!el) { showStatus('عنصر المعاينة غير موجود، أعد فتح النافذة'); return; }
     setPdfLoading(true);
-    showStatus('جاري تحضير ملف PDF المعتمد عالي الجودة... ⚙️');
+    showStatus('جاري توليد ملف PDF بواسطة سيرفر Puppeteer... ⚙️');
 
     try {
+      const htmlContent = el.outerHTML;
+      const subjectName = selectedSubjectObj?.name || 'المادة';
+      const gradeName = selectedGrade?.name || '';
+      const stageName = selectedStage?.name || '';
+      const pdfTitle = `توزيع ${subjectName} ${gradeName} ${stageName}`.replace(/\s+/g, ' ').trim();
+      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+      const pdfExportUrl = `${API_URL.replace(/\/$/, '')}/syllabus-weeks/export-pdf`;
+
+      const response = await fetch(pdfExportUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': 'wsylh_live_9f82a7b4c6e13095d82f7e41a0b3c69d8e7f1234a5b6c7d8e9f0123456789abc'
+        },
+        body: JSON.stringify({ html: htmlContent, title: pdfTitle }),
+      });
+
+      const contentType = response.headers.get('content-type') || '';
+      if (!response.ok || contentType.includes('application/json')) {
+        const err = await response.json().catch(() => ({}));
+        throw new Error(err.error || `فشل إنشاء PDF (${response.status})`);
+      }
+
+      const blobData = await response.blob();
+      const pdfBlob = new Blob([blobData], { type: 'application/pdf' });
+      const url = window.URL.createObjectURL(pdfBlob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${pdfTitle}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(() => { window.URL.revokeObjectURL(url); if (a.parentNode) a.parentNode.removeChild(a); }, 1000);
+      showStatus('✅ تم إنشاء وتنزيل ملف PDF المعتمد بواسطة Puppeteer بنجاح');
+    } catch (err: any) {
+      showStatus('⚠️ جاري استعراض ملف PDF عالي الجودة للطباعة والتنزيل...');
       const subjectName = selectedSubjectObj?.name || 'المادة';
       const gradeName = selectedGrade?.name || '';
       const stageName = selectedStage?.name || '';
       const pdfTitle = `توزيع ${subjectName} ${gradeName} ${stageName}`.replace(/\s+/g, ' ').trim();
 
       const printWindow = window.open('', '_blank');
-      if (!printWindow) {
-        showStatus('يرجى السماح بالنوافذ المنبثقة لتنزيل ملف PDF');
-        setPdfLoading(false);
-        return;
+      if (printWindow) {
+        printWindow.document.write(`
+          <!DOCTYPE html>
+          <html dir="rtl" lang="ar">
+          <head>
+            <meta charset="utf-8">
+            <title>${pdfTitle}</title>
+            <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+            <style>
+              @page { size: A4 landscape; margin: 6mm; }
+              * { box-sizing: border-box; font-family: 'Cairo', Arial, sans-serif !important; }
+              body { background: #ffffff; margin: 0; padding: 10px; color: #0f172a; direction: rtl; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+              #printable-syllabus { border: none !important; box-shadow: none !important; width: 100% !important; padding: 0 !important; }
+              @media print {
+                body { padding: 0 !important; }
+                #printable-syllabus { border: none !important; box-shadow: none !important; }
+              }
+            </style>
+          </head>
+          <body>
+            ${el.outerHTML}
+            <script>
+              window.onload = function() {
+                setTimeout(function() {
+                  window.print();
+                  window.close();
+                }, 400);
+              };
+            </script>
+          </body>
+          </html>
+        `);
+        printWindow.document.close();
       }
-
-      printWindow.document.write(`
-        <!DOCTYPE html>
-        <html dir="rtl" lang="ar">
-        <head>
-          <meta charset="utf-8">
-          <title>${pdfTitle}</title>
-          <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
-          <style>
-            @page { size: A4 landscape; margin: 6mm; }
-            * { box-sizing: border-box; font-family: 'Cairo', Arial, sans-serif !important; }
-            body { background: #ffffff; margin: 0; padding: 10px; color: #0f172a; direction: rtl; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-            #printable-syllabus { border: none !important; box-shadow: none !important; width: 100% !important; padding: 0 !important; }
-            @media print {
-              body { padding: 0 !important; }
-              #printable-syllabus { border: none !important; box-shadow: none !important; }
-            }
-          </style>
-        </head>
-        <body>
-          ${el.outerHTML}
-          <script>
-            window.onload = function() {
-              setTimeout(function() {
-                window.print();
-                window.close();
-              }, 400);
-            };
-          </script>
-        </body>
-        </html>
-      `);
-      printWindow.document.close();
-      showStatus('✅ تم تجهيز واستعراض ملف PDF عالي الجودة بنجاح');
-    } catch (err: any) {
-      showStatus('❌ حدث خطأ أثناء إنشاء ملف PDF: ' + (err.message || 'خطأ في التوليد'));
     } finally {
       setPdfLoading(false);
     }
