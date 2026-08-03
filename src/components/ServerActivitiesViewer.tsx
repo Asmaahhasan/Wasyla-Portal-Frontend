@@ -825,7 +825,7 @@ export const ServerActivitiesViewer: React.FC = () => {
             {selectedLessonFilter ? `لا توجد أنشطة مضافة لدرس "${selectedLessonFilter}"` : searchQuery ? 'لا توجد نتائج مطابقة للبحث' : 'لا توجد أنشطة مضافة لهذه المادة بعد'}
           </h3>
           <p style={{ fontSize: 13, color: '#94a3b8', margin: 0 }}>
-            {selectedLessonFilter ? 'قم بإلغاء التصفية لعرض باقي الدروس' : searchQuery ? 'جرب البحث بكلمات أخرى' : 'يمكنك إضافة أنشطة جديدة للمادة من لوحة التحكم'}
+            {selectedLessonFilter ? 'قم بإلغاء التصفية لعرض باقي الدروس' : searchQuery ? 'جرب البحث بكلمات أخرى' : 'لا توجد أنشطة مضافة لهذه المادة بعد'}
           </p>
         </div>
       ) : (

@@ -211,30 +211,54 @@ export const SyllabusDistributionViewer: React.FC = () => {
     const el = document.getElementById('printable-syllabus');
     if (!el) { showStatus('عنصر المعاينة غير موجود، أعد فتح النافذة'); return; }
     setPdfLoading(true);
-    showStatus('جاري تحضير وتوليد ملف PDF المعتمد عالي الجودة... ⚙️');
+    showStatus('جاري تحضير ملف PDF المعتمد عالي الجودة... ⚙️');
+
     try {
       const subjectName = selectedSubjectObj?.name || 'المادة';
       const gradeName = selectedGrade?.name || '';
       const stageName = selectedStage?.name || '';
       const pdfTitle = `توزيع ${subjectName} ${gradeName} ${stageName}`.replace(/\s+/g, ' ').trim();
 
-      const canvas = await html2canvas(el, {
-        scale: 2,
-        useCORS: true,
-        allowTaint: true,
-        backgroundColor: '#ffffff',
-        logging: false
-      });
+      const printWindow = window.open('', '_blank');
+      if (!printWindow) {
+        showStatus('يرجى السماح بالنوافذ المنبثقة لتنزيل ملف PDF');
+        setPdfLoading(false);
+        return;
+      }
 
-      const imgData = canvas.toDataURL('image/png', 1.0);
-      const pdf = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = pdf.internal.pageSize.getHeight();
-
-      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-      pdf.save(`${pdfTitle}.pdf`);
-
-      showStatus('✅ تم إنشاء وتنزيل ملف الـ PDF بنجاح');
+      printWindow.document.write(`
+        <!DOCTYPE html>
+        <html dir="rtl" lang="ar">
+        <head>
+          <meta charset="utf-8">
+          <title>${pdfTitle}</title>
+          <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+          <style>
+            @page { size: A4 landscape; margin: 6mm; }
+            * { box-sizing: border-box; font-family: 'Cairo', Arial, sans-serif !important; }
+            body { background: #ffffff; margin: 0; padding: 10px; color: #0f172a; direction: rtl; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+            #printable-syllabus { border: none !important; box-shadow: none !important; width: 100% !important; padding: 0 !important; }
+            @media print {
+              body { padding: 0 !important; }
+              #printable-syllabus { border: none !important; box-shadow: none !important; }
+            }
+          </style>
+        </head>
+        <body>
+          ${el.outerHTML}
+          <script>
+            window.onload = function() {
+              setTimeout(function() {
+                window.print();
+                window.close();
+              }, 400);
+            };
+          </script>
+        </body>
+        </html>
+      `);
+      printWindow.document.close();
+      showStatus('✅ تم تجهيز واستعراض ملف PDF عالي الجودة بنجاح');
     } catch (err: any) {
       showStatus('❌ حدث خطأ أثناء إنشاء ملف PDF: ' + (err.message || 'خطأ في التوليد'));
     } finally {
