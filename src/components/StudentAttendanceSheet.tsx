@@ -804,7 +804,7 @@ export const StudentAttendanceSheet: React.FC = () => {
         >
           <thead>
             <tr>
-              <th style={{ background: 'linear-gradient(135deg, rgb(15, 118, 110), rgb(13, 148, 136))', color: '#fff', border: '1px solid #0d9488', padding: '6px 4px', width: '32px', verticalAlign: 'middle' }}>
+              <th style={{ background: 'linear-gradient(135deg, rgb(15, 118, 110), rgb(13, 148, 136))', color: '#fff', border: '1px solid #0d9488', padding: '6px 4px', width: '32px', verticalAlign: 'middle', textAlign: 'center' }}>
                 م
               </th>
               <th style={{ background: 'linear-gradient(135deg, rgb(15, 118, 110), rgb(13, 148, 136))', color: '#fff', border: '1px solid #0d9488', padding: '6px 10px', width: '190px', textAlign: 'right', verticalAlign: 'middle' }}>
@@ -817,30 +817,31 @@ export const StudentAttendanceSheet: React.FC = () => {
                     background: 'linear-gradient(135deg, rgb(15, 118, 110), rgb(13, 148, 136))',
                     color: '#fff',
                     border: '1px solid #0d9488',
-                    padding: '4px 2px',
-                    fontSize: '9.5px',
-                    verticalAlign: 'middle'
+                    padding: '4px 1px',
+                    fontSize: '9px',
+                    verticalAlign: 'middle',
+                    textAlign: 'center'
                   }}
                 >
-                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '2px' }}>
-                    <span>الأسبوع</span>
-                    <span
+                  <div style={{ margin: '0 auto', textAlign: 'center', lineHeight: 1.1 }}>
+                    <div style={{ fontSize: '8.5px', marginBottom: '2px', fontWeight: 800 }}>الأسبوع</div>
+                    <div
                       style={{
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        width: '18px',
-                        height: '18px',
+                        display: 'block',
+                        margin: '0 auto',
+                        width: '16px',
+                        height: '16px',
+                        lineHeight: '16px',
                         borderRadius: '50%',
-                        background: '#fff',
+                        background: '#ffffff',
                         color: '#0f766e',
                         fontWeight: 900,
-                        fontSize: '9.5px',
-                        lineHeight: 1
+                        fontSize: '9px',
+                        textAlign: 'center'
                       }}
                     >
                       {num}
-                    </span>
+                    </div>
                   </div>
                 </th>
               ))}
@@ -889,17 +890,19 @@ export const StudentAttendanceSheet: React.FC = () => {
                   </td>
                   {weeksNumbers.map(num => (
                     <td key={num} style={{ border: '1px solid #6ee7b7', padding: '2px 1px', textAlign: 'center', verticalAlign: 'middle', background: s.number % 2 === 0 ? '#f0fdf4' : '#ffffff' }}>
-                      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '2px', height: '100%', minHeight: '20px' }}>
+                      <div style={{ textAlign: 'center', whiteSpace: 'nowrap', lineHeight: 1 }}>
                         {Array.from({ length: 5 }).map((_, i) => (
                           <span
                             key={i}
                             style={{
-                              width: '7.5px',
-                              height: '7.5px',
+                              width: '7px',
+                              height: '7px',
                               borderRadius: '50%',
-                              border: '1.5px solid #10b981',
+                              border: '1.2px solid #10b981',
                               display: 'inline-block',
-                              background: '#ffffff'
+                              margin: '0 0.8px',
+                              background: '#ffffff',
+                              verticalAlign: 'middle'
                             }}
                           />
                         ))}

@@ -37,6 +37,7 @@ interface LessonItem {
 }
 type LessonActivityItem = LessonItem;
 
+const API_KEY = import.meta.env.VITE_API_KEY || 'wsylh_live_9f82a7b4c6e13095d82f7e41a0b3c69d8e7f1234a5b6c7d8e9f0123456789abc';
 const RAW_API_URLS = [
   'https://api.wsyelhi.com/portal-api',
   'https://api.wsyelhi.com/api',
@@ -48,7 +49,9 @@ const API_URLS = Array.from(new Set(RAW_API_URLS));
 const fetchFromDatabase = async (endpoint: string): Promise<any | null> => {
   for (const baseUrl of API_URLS) {
     try {
-      const res = await fetch(`${baseUrl}${endpoint}`);
+      const res = await fetch(`${baseUrl}${endpoint}`, {
+        headers: { 'x-api-key': API_KEY }
+      });
       if (res.ok) {
         const json = await res.json();
         if (json && typeof json === 'object' && 'data' in json && json.data !== undefined) {
@@ -352,7 +355,7 @@ export const ServerActivitiesViewer: React.FC = () => {
 
 
   return (
-    <div className="activities-viewer-container" style={{ direction: 'rtl', padding: '4px 0', fontFamily: "'Cairo', sans-serif" }}>
+    <div className="activities-viewer-container" style={{ direction: 'rtl', padding: '20px 24px', fontFamily: "'Cairo', sans-serif" }}>
 
       {statusMsg && (
         <div style={{ background: 'linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%)', color: '#065f46', border: '1px solid #6ee7b7', padding: '10px 16px', borderRadius: '12px', marginBottom: '14px', fontWeight: 700, textAlign: 'center', fontSize: '12.5px', boxShadow: '0 2px 8px rgba(16,185,129,0.12)' }}>
@@ -657,67 +660,153 @@ export const ServerActivitiesViewer: React.FC = () => {
         </div>
       )}
 
-      {/* ── Inline Preview Box ── */}
+      {/* ── Inline Preview Box & Embedded Game Player ── */}
       {activePreview && (
-        <div style={{
-          background: 'linear-gradient(135deg,#fdf4ff 0%,#f0fdf4 100%)',
-          border: '2px solid #a7f3d0',
-          borderRadius: '20px',
-          padding: '18px 22px',
-          marginBottom: '20px',
-          boxShadow: '0 8px 28px rgba(16,185,129,0.10)'
-        }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1.5px solid #d1fae5', paddingBottom: '12px', marginBottom: '14px' }}>
-            <div>
-              <span style={{ fontSize: '11.5px', background: 'linear-gradient(135deg,#d1fae5,#a7f3d0)', color: '#065f46', padding: '4px 12px', borderRadius: '50px', fontWeight: 800, marginLeft: '8px' }}>
-                معاينة النشاط
-              </span>
-              <span style={{ fontSize: '14.5px', fontWeight: 900, color: '#065f46' }}>
-                {activePreview.item.title}
-              </span>
-              <div style={{ fontSize: '12px', color: '#6b7280', marginTop: '3px', fontWeight: 600 }}>📖 الدرس: {activePreview.lessonTitle}</div>
+        activePreview.item.type === 'GAME' || activePreview.item.type === 'INTERACTIVE' || activePreview.item.url ? (
+          <div style={{
+            background: 'linear-gradient(135deg, #f8fafc 0%, #edf2f7 100%)',
+            border: '2px solid #6366f1',
+            borderRadius: '24px',
+            padding: '20px',
+            marginBottom: '24px',
+            boxShadow: '0 12px 32px rgba(99,102,241,0.18)',
+            direction: 'rtl'
+          }}>
+            {/* Header Bar */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', borderBottom: '2px solid #cbd5e1', paddingBottom: '12px', flexWrap: 'wrap', gap: '10px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+                <span style={{ fontSize: '24px' }}>🎮</span>
+                <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 900, color: '#312e81' }}>
+                  {activePreview.item.title || 'لعبة تعليمية تفاعلية'}
+                </h3>
+                <span style={{ fontSize: '12px', background: '#e0e7ff', color: '#3730a3', padding: '4px 14px', borderRadius: '50px', fontWeight: 800 }}>
+                  📖 الدرس: {activePreview.lessonTitle}
+                </span>
+              </div>
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <button
+                  onClick={() => {
+                    const gameSrc = activePreview.item.url || 'game.html';
+                    window.open(gameSrc.includes('http') ? `game.html?url=${encodeURIComponent(gameSrc)}` : gameSrc, '_blank');
+                  }}
+                  style={{ background: 'linear-gradient(135deg,#6366f1,#4f46e5)', color: '#ffffff', border: 'none', padding: '8px 18px', borderRadius: '50px', fontSize: '12.5px', fontWeight: 800, cursor: 'pointer', boxShadow: '0 4px 12px rgba(79,70,229,0.3)' }}
+                >
+                  ⛶ فتح شاشة كاملة
+                </button>
+                <button
+                  onClick={() => setActivePreview(null)}
+                  style={{ background: '#ffffff', color: '#64748b', border: '1.5px solid #cbd5e1', padding: '8px 16px', borderRadius: '50px', fontSize: '12.5px', fontWeight: 800, cursor: 'pointer' }}
+                >
+                  إغلاق اللعبة ✖
+                </button>
+              </div>
             </div>
-            <div style={{ display: 'flex', gap: '8px' }}>
-              <button
-                onClick={() => {
-                  if (activePreview.item.url) window.open(activePreview.item.url, '_blank');
-                  else window.open('game.html', '_blank');
-                }}
-                style={{ background: 'linear-gradient(135deg,#34d399,#059669)', color: '#ffffff', border: 'none', padding: '8px 16px', borderRadius: '50px', fontSize: '12px', fontWeight: 800, cursor: 'pointer', boxShadow: '0 4px 12px rgba(5,150,105,0.25)' }}
-              >
-                🚀 فتح في نافذة كاملة
-              </button>
-              <button
-                onClick={() => setActivePreview(null)}
-                style={{ background: '#ffffff', color: '#6b7280', border: '1.5px solid #e5e7eb', padding: '8px 14px', borderRadius: '50px', fontSize: '12px', fontWeight: 700, cursor: 'pointer' }}
-              >
-                إغلاق ✖
-              </button>
-            </div>
-          </div>
 
-          <div style={{ background: 'rgba(255,255,255,0.7)', borderRadius: '16px', padding: '24px', border: '1.5px dashed #a7f3d0', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px' }}>
-            <div style={{ fontSize: '48px' }}>
-              {activePreview.item.type === 'GAME' ? '🎮' : activePreview.item.type === 'PRESENTATION' ? '🖥️' : activePreview.item.type === 'WORKSHEET' ? '📝' : '💡'}
+            {/* Tri-Panel Layout: Right (Student Wheel) | Center (Game Area) | Left (Leaderboard) */}
+            <div style={{ display: 'flex', gap: '16px', alignItems: 'stretch', justifyContent: 'center', flexWrap: 'wrap' }}>
+
+              {/* Right Sidebar: Student Spinner Wheel */}
+              <div style={{ width: '280px', flexShrink: 0, background: '#ffffff', borderRadius: '20px', padding: '16px', border: '1.5px solid #cbd5e1', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', boxShadow: '0 4px 12px rgba(0,0,0,0.04)' }}>
+                <h4 style={{ margin: '0 0 12px 0', fontSize: '14px', fontWeight: 900, color: '#4338ca' }}>🎡 اختيار طالب عشوائي</h4>
+
+                <div style={{ position: 'relative', width: '180px', height: '180px', margin: '0 auto 14px', borderRadius: '50%', overflow: 'hidden', border: '3px solid #6366f1', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', background: 'conic-gradient(#4f46e5 0deg 36deg,#06b6d4 36deg 72deg,#f59e0b 72deg 108deg,#10b981 108deg 144deg,#ef4444 144deg 180deg,#8b5cf6 180deg 216deg,#ec4899 216deg 252deg,#14b8a6 252deg 288deg,#f97316 288deg 324deg,#6366f1 324deg 360deg)' }}>
+                  <div style={{ position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)', width: 0, height: 0, borderLeft: '8px solid transparent', borderRight: '8px solid transparent', borderTop: '16px solid #f59e0b', zIndex: 10 }} />
+                  <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ffffff', fontWeight: 900, fontSize: '13px', textShadow: '1px 1px 2px #000' }}>
+                    🎯 العجلة
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => {
+                    const defaultNames = ["أحمد", "سارة", "خالد", "نور", "ليلى", "عمر", "يوسف", "جنى", "ماجد", "هند"];
+                    const picked = defaultNames[Math.floor(Math.random() * defaultNames.length)];
+                    const activeEl = document.getElementById('embedded-active-student');
+                    if (activeEl) activeEl.innerText = picked;
+                  }}
+                  style={{ width: '100%', padding: '10px 14px', borderRadius: '50px', background: 'linear-gradient(135deg,#4f46e5,#3730a3)', color: '#fff', border: 'none', fontWeight: 800, fontSize: '13px', cursor: 'pointer', boxShadow: '0 4px 12px rgba(79,70,229,0.3)', marginBottom: '12px' }}
+                >
+                  🔄 دوّر العجلة لطالب جديد
+                </button>
+
+                <div style={{ width: '100%', padding: '10px', background: '#e0e7ff', borderRadius: '12px', border: '1.5px dashed #6366f1' }}>
+                  <div style={{ fontSize: '11px', color: '#4338ca', fontWeight: 700 }}>الدور الآن على:</div>
+                  <div id="embedded-active-student" style={{ fontSize: '18px', fontWeight: 900, color: '#312e81', marginTop: '2px' }}>أحمد</div>
+                </div>
+              </div>
+
+              {/* Center Main Area: Game Display (في النص) */}
+              <div style={{ flex: 1, minWidth: '380px', minHeight: '560px', display: 'flex', flexDirection: 'column', borderRadius: '20px', overflow: 'hidden', border: '2px solid #6366f1', background: '#ffffff', boxShadow: '0 6px 20px rgba(0,0,0,0.08)', position: 'relative' }}>
+                <iframe
+                  src={activePreview.item.url || 'game.html'}
+                  style={{ width: '100%', flex: 1, minHeight: '560px', border: 'none', background: '#ffffff' }}
+                  allowFullScreen
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                />
+              </div>
+
+              {/* Left Sidebar: Leaderboard & Student Stars */}
+              <div style={{ width: '250px', flexShrink: 0, background: '#ffffff', borderRadius: '20px', padding: '16px', border: '1.5px solid #cbd5e1', display: 'flex', flexDirection: 'column', boxShadow: '0 4px 12px rgba(0,0,0,0.04)', maxHeight: '600px', overflowY: 'auto' }}>
+                <h4 style={{ margin: '0 0 12px 0', fontSize: '14px', fontWeight: 900, color: '#047857', textAlign: 'center' }}>⭐ لوحة النجوم والمتفوقين</h4>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  {["أحمد", "سارة", "خالد", "نور", "ليلى", "عمر", "يوسف", "جنى"].map((name, idx) => (
+                    <div
+                      key={name}
+                      style={{
+                        padding: '8px 12px',
+                        borderRadius: '10px',
+                        border: idx === 0 ? '2px solid #f59e0b' : '1px solid #e2e8f0',
+                        background: idx === 0 ? '#fef3c7' : '#f8fafc',
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center'
+                      }}
+                    >
+                      <span style={{ fontSize: '13px', fontWeight: 800, color: '#1e293b' }}>{name}</span>
+                      <span style={{ fontSize: '13px', color: '#f59e0b', fontWeight: 800 }}>{idx === 0 ? '⭐⭐⭐' : idx === 1 ? '⭐⭐' : '⭐'}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
             </div>
-            <h3 style={{ margin: 0, fontSize: '16px', color: '#065f46', fontWeight: 900 }}>{activePreview.item.title}</h3>
-            <p style={{ margin: 0, fontSize: '13px', color: '#6b7280', maxWidth: '500px', lineHeight: 1.6 }}>
-              {activePreview.item.type === 'GAME'
-                ? 'لعبة تعليمية تفاعلية ثلاثية الأبعاد (3D) من قاعدة بيانات المنصة.'
-                : 'نشاط تعليمي تفاعلي مرتبط بأهداف الدرس.'}
-            </p>
-            <button
-              onClick={() => {
-                if (activePreview.item.type === 'GAME') window.open('game.html', '_blank');
-                else if (activePreview.item.url) window.open(activePreview.item.url, '_blank');
-                else showStatus('تم فتح ورقة العمل التفاعلية ✅');
-              }}
-              style={{ background: 'linear-gradient(135deg,#34d399,#059669)', color: 'white', border: 'none', padding: '11px 26px', borderRadius: '50px', fontSize: '13.5px', fontWeight: 800, cursor: 'pointer', marginTop: '6px', boxShadow: '0 4px 16px rgba(5,150,105,0.28)' }}
-            >
-              {activePreview.item.type === 'GAME' ? '🎮 تشغيل اللعبة الآن 3D' : '▶️ مشاهدة المحتوى التفاعلي'}
-            </button>
           </div>
-        </div>
+        ) : (
+          <div style={{
+            background: 'linear-gradient(135deg,#fdf4ff 0%,#f0fdf4 100%)',
+            border: '2px solid #a7f3d0',
+            borderRadius: '20px',
+            padding: '18px 22px',
+            marginBottom: '20px',
+            boxShadow: '0 8px 28px rgba(16,185,129,0.10)'
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1.5px solid #d1fae5', paddingBottom: '12px', marginBottom: '14px' }}>
+              <div>
+                <span style={{ fontSize: '11.5px', background: 'linear-gradient(135deg,#d1fae5,#a7f3d0)', color: '#065f46', padding: '4px 12px', borderRadius: '50px', fontWeight: 800, marginLeft: '8px' }}>
+                  معاينة النشاط
+                </span>
+                <span style={{ fontSize: '14.5px', fontWeight: 900, color: '#065f46' }}>
+                  {activePreview.item.title}
+                </span>
+                <div style={{ fontSize: '12px', color: '#6b7280', marginTop: '3px', fontWeight: 600 }}>📖 الدرس: {activePreview.lessonTitle}</div>
+              </div>
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <button
+                  onClick={() => setActivePreview(null)}
+                  style={{ background: '#ffffff', color: '#6b7280', border: '1.5px solid #e5e7eb', padding: '8px 14px', borderRadius: '50px', fontSize: '12px', fontWeight: 700, cursor: 'pointer' }}
+                >
+                  إغلاق ✖
+                </button>
+              </div>
+            </div>
+
+            <div style={{ background: 'rgba(255,255,255,0.7)', borderRadius: '16px', padding: '24px', border: '1.5px dashed #a7f3d0', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px' }}>
+              <div style={{ fontSize: '48px' }}>
+                {activePreview.item.type === 'GAME' ? '🎮' : activePreview.item.type === 'PRESENTATION' ? '🖥️' : activePreview.item.type === 'WORKSHEET' ? '📝' : '💡'}
+              </div>
+              <h3 style={{ margin: 0, fontSize: '16px', color: '#065f46', fontWeight: 900 }}>{activePreview.item.title}</h3>
+            </div>
+          </div>
+        )
       )}
 
       {/* ── Activity Cards Grid ── */}
@@ -740,7 +829,7 @@ export const ServerActivitiesViewer: React.FC = () => {
           </p>
         </div>
       ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: '16px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: '20px', padding: '6px 2px' }}>
           {activityItemCards.map(({ cardId, activity, item }) => {
             const hasCover = item.thumbnailUrl;
             const badge = getActivityBadgeColor(item.type);

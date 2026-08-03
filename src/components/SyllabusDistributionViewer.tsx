@@ -41,6 +41,7 @@ const REGION_OPTIONS = [
   { id: 'MAKKAH', name: '2. مكة المكرمة والرياض وجدة' }
 ];
 
+const API_KEY = import.meta.env.VITE_API_KEY || 'wsylh_live_9f82a7b4c6e13095d82f7e41a0b3c69d8e7f1234a5b6c7d8e9f0123456789abc';
 const RAW_API_URLS = [
   'https://api.wsyelhi.com/portal-api',
   'https://api.wsyelhi.com/api',
@@ -52,7 +53,9 @@ const API_URLS = Array.from(new Set(RAW_API_URLS));
 const fetchFromDatabase = async (endpoint: string): Promise<{ ok: boolean; data: any }> => {
   for (const baseUrl of API_URLS) {
     try {
-      const res = await fetch(`${baseUrl}${endpoint}`);
+      const res = await fetch(`${baseUrl}${endpoint}`, {
+        headers: { 'x-api-key': API_KEY }
+      });
       if (res.ok) {
         const json = await res.json();
         let payload = json;
